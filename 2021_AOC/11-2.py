@@ -33,7 +33,6 @@ class Octopus:
             self.energy=0
         self.has_flashed=False
 
-
 def open_file_and_parse(test_or_main):
     #open correct file
     if test_or_main=="test":
@@ -94,7 +93,8 @@ def run_simulation(octopi):
         i+=1
     # Secret Day 11 Part II Sauce
     Success=False
-    if Octopus.flash_count==len(octopi)*len(octopi[0]):
+    number_of_octopi=len(octopi)*len(octopi[0])
+    if Octopus.flash_count==number_of_octopi:
         Success=True
     else:
         Octopus.flash_reset()

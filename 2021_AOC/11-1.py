@@ -11,7 +11,7 @@ class Octopus:
         self.energy=energy
         self.has_flashed=False
 
-    def flash(self):
+    def try_to_flash(self):
         if self.energy>9:
             if self.has_flashed==False:
                 self.has_flashed=True
@@ -69,7 +69,7 @@ def run_simulation(octopi):
         while i < len(octopi):
             j=0
             while j < len(octopi[i]):
-                did_flash=octopi[i][j].flash()
+                did_flash=octopi[i][j].try_to_flash()
                 if did_flash==True:
                     Octopus.add_flash()
                     for x in range(3):
