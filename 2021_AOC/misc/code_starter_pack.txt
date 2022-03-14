@@ -18,15 +18,15 @@ def open_file_and_parse(test_or_main):
 
 
 
-def main(type):
-    data=open_file_and_parse(type)
+def main():
+    data=open_file_and_parse(run_type)
     print(data)
 
 
-# type="main"
-# type="temp"
-type="test"
+# run_type="main"
+# run_type="temp"
+run_type="test"
 
 
 
-main(type)
+main(run_type)

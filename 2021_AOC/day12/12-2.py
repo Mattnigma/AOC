@@ -34,7 +34,7 @@ class Cave:
 def cave_explored_twice(cave_list):
     fact=False
     for cave in cave_list:
-        if cave.type=="small":
+        if cave.doc_type== "small":
             if cave_list.count(cave)==2:
                 fact=True
     return fact
@@ -47,9 +47,9 @@ def explore_caves(starting_point,caves_traveled,path_list):
         path_list.append(caves_traveled)
         return path_list
     for connection in starting_point.connections:
-        if connection.type == "start":
+        if connection.doc_type == "start":
             pass
-        elif connection.type=="small" and cave_explored_twice(caves_traveled) and connection in caves_traveled:
+        elif connection.doc_type== "small" and cave_explored_twice(caves_traveled) and connection in caves_traveled:
             pass
         else:
             path_list=explore_caves(connection,caves_traveled.copy(),path_list)
@@ -113,8 +113,8 @@ def main(type):
 
 
 type="main"
-# type="temp"
-# type="test"
+# doc_type="temp"
+# doc_type="test"
 
 
 

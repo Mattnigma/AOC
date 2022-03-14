@@ -78,6 +78,6 @@ def main(type):
 
 
 type="main"
-# type="test"
+# doc_type="test"
 
 main(type)

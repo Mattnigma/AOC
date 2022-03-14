@@ -7,11 +7,15 @@ class Octopus:
     def add_flash(cls):
         cls.flash_count += 1
 
+    @classmethod
+    def flash_reset(cls):
+        cls.flash_count = 0
+
     def __init__(self, energy):
         self.energy=energy
         self.has_flashed=False
 
-    def try_to_flash(self):
+    def flash(self):
         if self.energy>9:
             if self.has_flashed==False:
                 self.has_flashed=True
@@ -28,7 +32,6 @@ class Octopus:
         if self.energy>9:
             self.energy=0
         self.has_flashed=False
-
 
 def open_file_and_parse(test_or_main):
     #open correct file
@@ -69,7 +72,7 @@ def run_simulation(octopi):
         while i < len(octopi):
             j=0
             while j < len(octopi[i]):
-                did_flash=octopi[i][j].try_to_flash()
+                did_flash=octopi[i][j].flash()
                 if did_flash==True:
                     Octopus.add_flash()
                     for x in range(3):
@@ -88,18 +91,29 @@ def run_simulation(octopi):
             octopi[i][j].reset()
             j+=1
         i+=1
-    return octopi
+    # Secret Day 11 Part II Sauce
+    Success=False
+    number_of_octopi=len(octopi)*len(octopi[0])
+    if Octopus.flash_count==number_of_octopi:
+        Success=True
+    else:
+        Octopus.flash_reset()
+    return octopi , Success
 
 def main(type):
     data=open_file_and_parse(type)
     octopi=init_octopi(data)
-    for i in range(100):
-        octopi=run_simulation(octopi)
-    print(Octopus.flash_count)
+    i=0
+    while True:
+        octopi , success = run_simulation(octopi)
+        i+=1
+        if success == True:
+            break
+    print(i)
 
 type="main"
-# type="temp"
-# type="test"
+# doc_type="temp"
+# doc_type="test"
 
 
 

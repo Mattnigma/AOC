@@ -54,8 +54,8 @@ def main(type):
 
 
 type="main"
-# type="temp"
-# type="test"
+# doc_type="temp"
+# doc_type="test"
 
 
 

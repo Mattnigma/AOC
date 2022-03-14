@@ -45,6 +45,6 @@ def main(type):
     print(sum(today_pop))
 
 type="main"
-# type="test"
+# doc_type="test"
 
 main(type)

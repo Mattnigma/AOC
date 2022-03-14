@@ -32,6 +32,6 @@ def main(type):
     print(len(today_pop))
 
 type="main"
-# type="test"
+# doc_type="test"
 
 main(type)

@@ -15,9 +15,14 @@ def find_possible_fuel_usage(location_list):
     i=0
     position_and_fuel=[]
     while i <= 999:
+        distance=0
         fuel_used=0
         for location in location_list:
-            fuel_used+=abs(location-i)
+            distance=abs(location-i)
+            j=1
+            while j<=distance:
+                fuel_used+=j
+                j+=1
         position_and_fuel.append([i,fuel_used])
         i+=1
     return position_and_fuel
@@ -39,6 +44,6 @@ def main(type):
 
 
 type="main"
-# type="test"
+# doc_type="test"
 
 main(type)
