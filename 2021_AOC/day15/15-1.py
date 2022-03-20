@@ -1,4 +1,8 @@
 #! /usr/bin/env python3
+import copy
+
+class Variables:
+    def __init__(self):p
 
 
 def open_file_and_parse(test_or_main):
@@ -15,21 +19,33 @@ def open_file_and_parse(test_or_main):
     return data
 
 
-def map_path(floor_map, x, y, path, max_vals, hazard_list, hazard, back_count):
-    path.append([x, y])
-    hazard += floor_map[y][x]
-    if x + 1 == max_vals[0] and y + 1 == max_vals[1]:
-        # print(hazard)
-        hazard_list.append(hazard)
-        return hazard_list
+class MapPathParameters:
+    floor_map: list[list[int]]
+    x: int
+    y: int
+    path: list[list[int]]
+    max_vals: tuple[int, int]
+    hazard_list: list[int]
+    hazard: int
+    back_count: int
+
+
+def map_path(p: MapPathParameters):
+    p.path.append([p.x, p.y])
+    p.hazard += p.floor_map[p.y][p.x]
+    # test whether at end position (bottom right)
+    if p.x + 1 == p.max_vals[0] and p.y + 1 == p.max_vals[1]:
+        p.hazard_list.append(p.hazard)
+        # print(len(p.hazard_list))
+        return p.hazard_list
     for i in range(4):
         if i < 2:
             vector = 1
         else:
             vector = -1
         if vector == -1:
-            back_count += 1
-        if back_count > 0:
+            p.back_count += 1
+        if p.back_count > 0:
             continue
         if i % 2 == 0:
             x_add = vector
@@ -37,26 +53,31 @@ def map_path(floor_map, x, y, path, max_vals, hazard_list, hazard, back_count):
         else:
             x_add = 0
             y_add = vector
-        new_x = x + x_add
-        new_y = y + y_add
+        new_x = p.x + x_add
+        new_y = p.y + y_add
         try:
             if new_x >= 0 and new_y >= 0:
-                if [new_x, new_y] not in path:
-                    hazard_list = map_path(floor_map, new_x, new_y, path.copy(), max_vals, hazard_list, hazard, back_count)
+                if [new_x, new_y] not in p.path:
+                    inner_p = copy.deepcopy(p)
+                    inner_p.x = new_x
+                    inner_p.y = new_y
+                    p.hazard_list = map_path(inner_p)
         except:
             pass
-    return hazard_list
+    return p.hazard_list
 
 
 def find_paths(floor_map):
-    x = 0
-    y = 0
-    path = []
-    hazard_list = []
-    hazard = -1 * floor_map[0][0]
-    back_count = 0
-    max_vals = len(floor_map[0]), len(floor_map)
-    hazard_list = map_path(floor_map, x, y, path.copy(), max_vals, hazard_list, hazard, back_count)
+    p = MapPathParameters()
+    p.path = []
+    p.floor_map = floor_map
+    p.x = 0
+    p.y = 0
+    p.back_count = 0
+    p.hazard = -1 * p.floor_map[0][0]
+    p.hazard_list = []
+    p.max_vals = len(p.floor_map[0]), len(p.floor_map)
+    hazard_list = map_path(p)
     return hazard_list
 
 
@@ -65,10 +86,11 @@ def main():
     hazard_list = find_paths(data)
     # print(hazard_list)
     print(min(hazard_list))
+    # print(len(hazard_list))
 
 
-run_type = "main"
+# run_type = "main"
 # run_type = "temp"
-# run_type = "test"
+run_type = "test"
 
 main()
