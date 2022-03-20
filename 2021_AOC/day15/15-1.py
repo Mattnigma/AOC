@@ -89,8 +89,8 @@ def main():
     # print(len(hazard_list))
 
 
-# run_type = "main"
+run_type = "main"
 # run_type = "temp"
-run_type = "test"
+# run_type = "test"
 
 main()
