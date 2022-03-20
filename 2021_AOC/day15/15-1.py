@@ -1,8 +1,71 @@
 #! /usr/bin/env python3
-import copy
 
-class Variables:
-    def __init__(self):p
+
+class Point:
+    def __repr__(self):
+        return f"<find_at: {self.x}, {self.y} status: {self.status}>"
+
+    discovered = "Discovered"
+    explored = "Explored"
+    undiscovered = "Undiscovered"
+
+    @classmethod
+    def get_min_discovered(cls,point_array):
+        discovered_points = []
+        path_hazards = []
+        for row in point_array:
+            for point in row:
+                if point.status == point.discovered:
+                    discovered_points.append([point, point.path_hazard])
+                    path_hazards.append(point.path_hazard)
+        min_path_hazard = min(path_hazards)
+        for point_set in discovered_points:
+            if point_set[0].path_hazard == min_path_hazard:
+                return point_set[0]
+
+    def __init__(self, x, y, hazard):
+        if x == 0 and y == 0:
+            self.status = self.discovered
+            self.path_hazard = 0
+        else:
+            self.status = self.undiscovered
+            self.path_hazard = 999999999999999999999
+        self.x = x
+        self.y = y
+        self.hazard = hazard
+
+
+def out_of_matrix_range(x, y, map):
+    if 0 <= x < len(map[0]):
+        if 0 <= y < len(map):
+            return False
+    return True
+
+
+
+def explore_next_point(point_array):
+    point_to_be_explored = Point.get_min_discovered(point_array)
+    point_to_be_explored.status = point_to_be_explored.explored
+    for i in range(4):
+        if i < 2:
+            vector = 1
+        else:
+            vector = -1
+        if i % 2 == 0:
+            x_add = vector
+            y_add = 0
+        else:
+            x_add = 0
+            y_add = vector
+        updated_x = point_to_be_explored.x + x_add
+        updated_y = point_to_be_explored.y + y_add
+        if out_of_matrix_range(updated_x, updated_y, point_array):
+            continue
+        point_to_be_discovered = point_array[updated_y][updated_x]
+        if point_to_be_discovered.status == point_to_be_discovered.explored:
+            continue
+        point_to_be_discovered.path_hazard = min([point_to_be_discovered.path_hazard, point_to_be_explored.path_hazard + point_to_be_discovered.hazard])
+        point_to_be_discovered.status = point_to_be_discovered.discovered
 
 
 def open_file_and_parse(test_or_main):
@@ -15,78 +78,21 @@ def open_file_and_parse(test_or_main):
         data = open("./day15/puzzle_data.txt")
     data = data.readlines()
     data = [i.strip() for i in data]
-    data = [[int(j) for j in i] for i in data]
-    return data
-
-
-class MapPathParameters:
-    floor_map: list[list[int]]
-    x: int
-    y: int
-    path: list[list[int]]
-    max_vals: tuple[int, int]
-    hazard_list: list[int]
-    hazard: int
-    back_count: int
-
-
-def map_path(p: MapPathParameters):
-    p.path.append([p.x, p.y])
-    p.hazard += p.floor_map[p.y][p.x]
-    # test whether at end position (bottom right)
-    if p.x + 1 == p.max_vals[0] and p.y + 1 == p.max_vals[1]:
-        p.hazard_list.append(p.hazard)
-        # print(len(p.hazard_list))
-        return p.hazard_list
-    for i in range(4):
-        if i < 2:
-            vector = 1
-        else:
-            vector = -1
-        if vector == -1:
-            p.back_count += 1
-        if p.back_count > 0:
-            continue
-        if i % 2 == 0:
-            x_add = vector
-            y_add = 0
-        else:
-            x_add = 0
-            y_add = vector
-        new_x = p.x + x_add
-        new_y = p.y + y_add
-        try:
-            if new_x >= 0 and new_y >= 0:
-                if [new_x, new_y] not in p.path:
-                    inner_p = copy.deepcopy(p)
-                    inner_p.x = new_x
-                    inner_p.y = new_y
-                    p.hazard_list = map_path(inner_p)
-        except:
-            pass
-    return p.hazard_list
-
-
-def find_paths(floor_map):
-    p = MapPathParameters()
-    p.path = []
-    p.floor_map = floor_map
-    p.x = 0
-    p.y = 0
-    p.back_count = 0
-    p.hazard = -1 * p.floor_map[0][0]
-    p.hazard_list = []
-    p.max_vals = len(p.floor_map[0]), len(p.floor_map)
-    hazard_list = map_path(p)
-    return hazard_list
+    point_array=[]
+    for i in range(len(data)):
+        point_array.append([])
+        for j in range(len(data[0])):
+            point_array[i].append(Point(j, i, int(data[i][j])))
+    return point_array
 
 
 def main():
-    data = open_file_and_parse(run_type)
-    hazard_list = find_paths(data)
-    # print(hazard_list)
-    print(min(hazard_list))
-    # print(len(hazard_list))
+    points = open_file_and_parse(run_type)
+    while True:
+        explore_next_point(points)
+        if points[-1][-1].status == points[-1][-1].discovered:
+            break
+    print(points[-1][-1].path_hazard)
 
 
 run_type = "main"
