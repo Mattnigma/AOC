@@ -42,10 +42,15 @@ def out_of_matrix_range(x, y, map):
     return True
 
 
-
 def explore_next_point(point_array):
     point_to_be_explored = Point.get_min_discovered(point_array)
     point_to_be_explored.status = point_to_be_explored.explored
+    i = 0
+    for row in point_array:
+        for column in row:
+            if column.status == column.explored:
+                i += 1
+    print(i, point_to_be_explored.x, point_to_be_explored.y, point_to_be_explored.path_hazard)
     for i in range(4):
         if i < 2:
             vector = 1
@@ -78,11 +83,24 @@ def open_file_and_parse(test_or_main):
         data = open("./day15/puzzle_data.txt")
     data = data.readlines()
     data = [i.strip() for i in data]
-    point_array=[]
-    for i in range(len(data)):
+    data_expander = [[j + i for j in range(5)] for i in range(5)]
+    large_data = []
+    for expander_row in data_expander:
+        j = 0
+        for expander_column in expander_row:
+            i = 0
+            for row in data:
+                if j == 0:
+                    large_data.append([])
+                for column in row:
+                    large_data[expander_row[0] * len(data) + i].append((int(column) + expander_column - 1) % 9 + 1)
+                i += 1
+            j += 1
+    point_array = []
+    for i in range(len(large_data)):
         point_array.append([])
-        for j in range(len(data[0])):
-            point_array[i].append(Point(j, i, int(data[i][j])))
+        for j in range(len(large_data[0])):
+            point_array[i].append(Point(j, i, large_data[i][j]))
     return point_array
 
 

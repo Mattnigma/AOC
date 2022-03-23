@@ -1,26 +1,36 @@
 #! /usr/bin/env python3
 
+from enum import Enum, unique, auto
 
-def open_file_and_parse(test_or_main):
+
+@unique
+class RunType(Enum):
+    test = auto()
+    temp = auto()
+    main = auto()
+
+
+def open_file_and_parse(run_type):
     # open correct file
-    if test_or_main == "test":
-        data = open("./day15/test_data.txt")
-    elif test_or_main == "temp":
+    if run_type == RunType.test:
+        data = open(f"./day{day}/test_data.txt")
+    if run_type == RunType.temp:
         data = open("./misc/temp.txt")
-    else:
-        data = open("./day15/puzzle_data.txt")
+    if run_type == RunType.main:
+        data = open(f"./day{day}/puzzle_data.txt")
     data = data.readlines()
     data = [i.strip() for i in data]
     return data
 
 
 def main():
-    data = open_file_and_parse(run_type)
-    print(data)
+    parsed_data = open_file_and_parse(run_type)
+    print(parsed_data)
 
 
-# run_type="main"
-# run_type="temp"
-run_type = "test"
+day = 16
+run_type = RunType.main
+# run_type = RunType.temp
+# run_type = RunType.test
 
 main()
