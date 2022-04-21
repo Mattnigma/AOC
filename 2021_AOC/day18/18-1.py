@@ -10,6 +10,23 @@ class RunType(Enum):
     main = auto()
 
 
+class SnailfishNumeral:
+    def __init__(self, value, level, level_side):
+        self.address = []
+        for i in range(level):
+            self.address.append(level_side[i])
+        self.value = value
+        self.depth = level
+
+    def __repr__(self):
+        return f"{self.value}@{self.address}"
+
+    def prepare_for_add(self, side):
+        self.address.insert(0, side)
+        self.depth += 1
+        return self
+
+
 def open_file_and_parse(run_type):
     # open correct file
     if run_type == RunType.test:
@@ -20,34 +37,101 @@ def open_file_and_parse(run_type):
         data = open(f"./day{day}/puzzle_data.txt")
     data = data.readlines()
     data = [i.strip() for i in data]
-    return data
+    snailfish_number_list = []
+    for snailfish_num_string in data:
+        snailfish_number_list.append(produce_snailfish_number(snailfish_num_string))
+    return snailfish_number_list
 
 
-def add_addends(addend_list: list) -> list:
-    while len(addend_list) > 1:
-        addend_0 = addend_list.pop(0)
-        addend_1 = addend_list[0]
-        addend_list[0] = [addend_0, addend_1]
-        addend_list[0] = reduce_snailfish_number(addend_0)
-    return addend_list[0]
+def produce_snailfish_number(number_string):
+    level = 0
+    level_side = [0, 0, 0, 0, 0]  # 0 = right, 1 = left
+    snailfish_number = []
+    for char in number_string:
+        if char == "[":
+            level += 1
+            level_side[level - 1] = 0
+        elif char == ",":
+            level_side[level - 1] = 1
+        elif char == "]":
+            level -= 1
+        else:
+            snailfish_number.append(SnailfishNumeral(int(char), level, level_side))
+    return snailfish_number
 
 
-def reduce_snailfish_number(snailfish_number: list, recursionlevel=0: int) -> list:
-    complete = False
-    while not complete:
-        for sub_snailfish_number in snailfish_number:
-            if type(sub_snailfish_number) == list:
-                new subsnail, explode_left, explode_right = reduce_snailfish_number(sub_snailfish_number, recursionlevel + 1)
+def add_snailfish_numbers(snailfish_num_0, snailfish_num_1):
+    new_snailfish_num = []
+    for snailfish_numeral in snailfish_num_0:
+        new_snailfish_num.append(snailfish_numeral.prepare_for_add(0))
+    for snailfish_numeral in snailfish_num_1:
+        new_snailfish_num.append(snailfish_numeral.prepare_for_add(1))
+    new_snailfish_num = reduce_snailfish_num(new_snailfish_num)
+    return new_snailfish_num
+
+
+def reduce_snailfish_num(snailfish_num):
+    i = 0
+    while i < len(snailfish_num):
+        if snailfish_num[i].depth == 5:
+            if i > 0:
+                snailfish_num[i-1].value += snailfish_num[i].value
+            try:
+                snailfish_num[i+2].value += snailfish_num[i+1].value
+            except IndexError:
+                pass
+            snailfish_num.insert(i, SnailfishNumeral(0, 4, snailfish_num[i].address[0:4]))
+            snailfish_num.pop(i+1)
+            snailfish_num.pop(i+1)
+            i = 0
+        i += 1
+    i = 0
+    while i < len(snailfish_num):
+        if snailfish_num[i].value > 9:
+            temp = snailfish_num.pop(i)
+            snailfish_num.insert(i, SnailfishNumeral(int((temp.value + temp.value % 2) / 2), temp.depth + 1, temp.address + [1]))
+            snailfish_num.insert(i, SnailfishNumeral(int((temp.value - temp.value % 2) / 2), temp.depth + 1, temp.address + [0]))
+            snailfish_num = reduce_snailfish_num(snailfish_num)
+            return snailfish_num
+        i += 1
+    return snailfish_num
+
+
+def add_all_numbers(number_list):
+    i = 1
+    while len(number_list) != 1:
+        number_list[0] = add_snailfish_numbers(number_list[0], number_list.pop(1))
+    return number_list
+
+
+def find_magnitude(snailfish_number, depth = 4):
+    i = 0
+    while i < len(snailfish_number):
+        if depth == 1:
+            return snailfish_number[i].value * 3 + snailfish_number[i+1].value * 2
+        if snailfish_number[i].depth == depth:
+            magnitude_value =snailfish_number[i].value * 3 + snailfish_number[i+1].value * 2
+            magnitude_depth = snailfish_number[i].depth - 1
+            magnitude_address = snailfish_number[i].address[0:depth]
+            snailfish_number.pop(i)
+            snailfish_number.pop(i)
+            snailfish_number.insert(i, SnailfishNumeral(magnitude_value, magnitude_depth, magnitude_address))
+            i = 0
+        i += 1
+    snailfish_number = find_magnitude(snailfish_number, depth - 1)
+    return snailfish_number
 
 
 def main():
     parsed_data = open_file_and_parse(run_type)
-    print(parsed_data)
+    sum_snailfish_numbers = add_all_numbers(parsed_data)
+    magnitude = find_magnitude(sum_snailfish_numbers[0])
+    print(magnitude)
 
 
 day = 18
-# run_type = RunType.main
+run_type = RunType.main
 # run_type = RunType.temp
-run_type = RunType.test
+# run_type = RunType.test
 
 main()
